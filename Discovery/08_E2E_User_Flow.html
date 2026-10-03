@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Buddy · E2E User Flow</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+<!-- ── Embedded MD content — update this block when 08_E2E_User_Flow.md changes ── -->
+<script id="md-source" type="text/markdown">
+# E2E User Flow — Travel Buddy
+**Project:** Travel Buddy | **Phase:** Define → Ideate
+**Linked to:** `07_Solution_Pool.md` · `06_User_Personas.md` · `05_Research_Synthesis.md`
+**Status:** 🟢 Draft v1 — all 26 solutions mapped across 4 travel phases
+
+---
+
+## 1. Theoretical Grounding
+
+A user flow is "a visual representation of the path a user takes when interacting with a product, from their point of entry to the completion of a task" (Dippner, 2022, p. 168). Unlike a wireframe, which captures what a screen looks like, a user flow captures what the user *does* — the decisions they make and the states they move through. It bridges research and design by translating personas and problem statements into a testable sequence.
+
+An end-to-end (E2E) flow extends this from a single task to the entire product lifecycle. It answers the question: *What does the full user journey look like from first contact with the product to a loyal, returning user?* For Travel Buddy, this maps directly to the four phases of the travel experience — Onboarding, Pre-Trip, In-Destination, and Post-Trip — plus a loop phase that returns the user to the start.
+
+The happy path convention, as described by Patton (2014), shows the ideal sequence assuming no errors and a motivated user (as cited in Dippner, 2022, p. 171). This is intentional: the happy path defines the core product promise. Edge cases and error states are addressed in subsequent interaction design phases.
+
+---
+
+## 2. Solution Coverage Map
+
+All 26 solutions from `07_Solution_Pool.md` are distributed across the four travel phases below. Each solution appears at the point where it would naturally be encountered in the user journey.
+
+| Phase | Solutions covered |
+|-------|-------------------|
+| Onboarding | A1, A2, A3, A4, A5 |
+| Pre-Trip — Discover | D1, D2, D3, D4, D5 |
+| Pre-Trip — Plan | P1, P2, P3, P5, P6 |
+| In-Destination — Navigate | P1 (reorder), P4 |
+| In-Destination — Connect | C1, C2, C3, C4, C5 |
+| In-Destination — Capture | J1 |
+| Post-Trip — Journal & Share | J2, J3, J4, J5 |
+| Between Trips | D1 (re-entry loop) |
+
+---
+
+## 3. E2E Flow Diagram
+
+> **How to read this diagram:** Each node shows the feature description and its Solution Pool ID (·Dx / ·Px / ·Cx / ·Jx / ·Ax). Diamond shapes are decision points. Rounded rectangles are entry/exit anchors. The happy path follows the main horizontal spine; branches show the most common alternate path (e.g. skipping sign-up, going offline, choosing not to share).
+
+```mermaid
+flowchart LR
+    classDef entry fill:#3730a3,stroke:#3730a3,color:#fff,font-weight:600
+    classDef action fill:#4f46e5,stroke:#4338ca,color:#fff
+    classDef mid fill:#818cf8,stroke:#6d28d9,color:#fff
+    classDef leaf fill:#ede9fe,stroke:#a5b4fc,color:#3730a3
+    classDef decision fill:#ffffff,stroke:#4338ca,color:#1e293b
+
+    subgraph OB["🚀 Onboarding"]
+        n1([User arrives]) --> n2["Browse without account · A4"]
+        n2 --> n3{Ready to sign up?}
+        n3 -- Yes --> n4["3-question onboarding · A5"]
+        n4 --> n5["Free access granted · A1"]
+        n5 --> n6["Personalised first moment · A2"]
+        n6 --> n7["Set location controls · A3"]
+    end
+
+    subgraph PRE["📋 Pre-Trip — Discover & Plan"]
+        n8([Enter Discovery]) --> n9["Peer-sourced tip feed · D1"]
+        n9 --> n10["Filter by travel style · D2"]
+        n10 --> n11["Check crowd signal · D3"]
+        n11 --> n12["Watch video snippet · D4"]
+        n12 --> n13["Review safety context · D5"]
+        n13 --> n14["One-tap save to shortlist · P3"]
+        n14 --> n15["Import AI itinerary · P6"]
+        n15 --> n16["Build living shortlist · P1"]
+        n16 --> n17["Collaborate with companions · P5"]
+        n17 --> n18["Map view of saved places · P2"]
+    end
+
+    subgraph DEST["📍 In-Destination — Navigate & Connect"]
+        n19["Reorder shortlist on the fly · P1"] --> n20{Has internet?}
+        n20 -- No --> n21["Offline access · P4"]
+        n20 -- Yes --> n22["Live discovery · D1–D5"]
+        n21 --> n23
+        n22 --> n23([Connect with local])
+        n23 --> n24["Interest & style matching · C2"]
+        n24 --> n25["Verify identity · C1"]
+        n25 --> n26["Reciprocal exchange · C3"]
+        n26 --> n27["In-app message · C4"]
+        n27 --> n28["Report / block available · C5"]
+        n28 --> n29["Auto-capture: location + time · J1"]
+    end
+
+    subgraph POST["📸 Post-Trip — Journal & Share"]
+        n30["Auto-generated layout · J2"] --> n31["Journal private by default · J3"]
+        n31 --> n32{Share?}
+        n32 -- No --> n34["Contextual memory layer · J5"]
+        n32 -- Yes --> n33["Selective share with contacts · J4"]
+        n33 --> n34
+    end
+
+    subgraph LOOP["🔁 Between Trips"]
+        n35["Browse for next destination · D1"]
+    end
+
+    %% Cross-phase connections
+    n3 -- Later --> n8
+    n7 --> n8
+    n18 --> n19
+    n29 --> n30
+    n34 --> n35
+    n35 --> n8
+
+    %% Node styles
+    class n1,n8,n23 entry
+    class n2,n4,n5,n6,n7,n19,n35 action
+    class n9,n10,n11,n12,n13,n14,n15,n16,n17,n18 mid
+    class n21,n22,n24,n25,n26,n27,n28,n29,n30,n31,n33,n34 leaf
+    class n3,n20,n32 decision
+```
+
+---
+
+## 4. Phase-by-Phase Breakdown
+
+### Phase 0 — Onboarding *(Solutions: A1–A5)*
+
+**Entry point:** User discovers Travel Buddy via referral, app store, or social media.
+
+**Happy path:**
+The user can browse the Discovery feed immediately without creating an account (A4 — no-account browsing). This ensures the product delivers value before asking for anything. When ready, a lightweight three-question setup captures travel style, interests, and home city — nothing else (A5 — lightweight onboarding). Free access is granted immediately (A1 — free-first model). Within the first session, the user encounters a personalised discovery result or sees an auto-captured moment that demonstrates the product's core value (A2 — value-first onboarding). Finally, location controls are presented transparently — the user chooses exactly what is captured and when (A3 — granular location controls).
+
+**Decision point:** If the user skips sign-up, they enter Discovery directly. Registration is only required when saving a place or initiating a connection. This reduces the first-session drop-off caused by premature account creation gates.
+
+**Why it matters:** Survey data (n=13) shows price (7/13) and complexity (4/13) as the top adoption barriers. This phase is designed to remove both before the user has committed to anything.
+
+---
+
+### Phase 1 — Pre-Trip: Discover *(Solutions: D1–D5)*
+
+**Entry point:** User has a destination in mind or is browsing for inspiration.
+
+**Happy path:**
+The user enters a peer-sourced tip feed free from ads and paid placements (D1). They filter by travel style to see recommendations from people who travel like them — relaxed, exploratory, or cultural (D2). A crowd-signal indicator flags overly commercialised or tourist-saturated spots so the user can avoid them (D3). Short video snippets show what a place actually feels like, closing the expectation gap that lets social media photos disappoint (D4). Safety context from recent travelers is surfaced per destination (D5).
+
+**Key insight from P1:** Cross-source convergence is how real travelers build trust. D1's peer feed should surface *why* a tip is recommended (who, when, what type of traveler) so users can apply their own trust logic — not just see a rating.
+
+---
+
+### Phase 2 — Pre-Trip: Plan *(Solutions: P1, P2, P3, P5, P6)*
+
+**Entry point:** User has found things they want to do and needs to organize them into a trip.
+
+**Happy path:**
+Any tip or place in the Discovery feed can be saved to the Trip Planner with one tap — no switching apps (P3 — one-tap save). If the user has drafted an itinerary in ChatGPT or Gemini, they can paste or import it directly, converting AI-generated text into a structured, editable shortlist (P6 — AI itinerary import). The shortlist is a reorderable, living document rather than a locked day-by-day schedule (P1 — living shortlist). Travel companions are invited to view and co-edit the same shortlist (P5 — collaborative planning). A map view shows all saved places visually, supporting proximity-based decisions before arrival (P2 — map view).
+
+**Key insight from P1:** The planner is not just a personal tool — it is a shared coordination artifact. P5 is confirmed by P1 who shares her Google Sheets planner with companions for every trip.
+
+---
+
+### Phase 3 — In-Destination: Navigate *(Solutions: P1, P4)*
+
+**Entry point:** User has arrived at the destination.
+
+**Happy path:**
+The shortlist can be reordered on the fly as plans shift (P1 — reorder mode). If the user loses internet — a common in-destination scenario when roaming is expensive — core planning content remains fully accessible (P4 — offline access). This includes the shortlist, map, and any saved notes.
+
+**Decision point:** With internet available, the user can continue browsing the live Discovery feed for spontaneous additions. Without internet, they work from saved content only.
+
+---
+
+### Phase 4 — In-Destination: Connect *(Solutions: C1–C5)*
+
+**Entry point:** User wants a local recommendation or genuine interaction, not a paid tour.
+
+**Happy path:**
+The user matches with a local based on declared travel interests and style (C2 — interest matching). The local's profile shows verified identity signals so the user can assess who they are before reaching out (C1 — verified identity). The platform frames the exchange as reciprocal and free — no transaction, no booking (C3 — reciprocal exchange model). The user sends a message asking for a recommendation (C4 — in-app messaging). Report and block controls are available throughout the interaction if anything feels wrong (C5 — safety controls).
+
+**Key insight from P1:** The desire for local advice is genuine but the barrier is not distrust — it is not knowing how to find the right person. Profile completeness (interests, past feedback, clear local identity) is what closes that gap. A sparse profile will undermine willingness to connect before a message is ever sent.
+
+---
+
+### Phase 5 — In-Destination: Capture *(Solution: J1)*
+
+**Entry point:** User is actively experiencing the trip.
+
+**Happy path:**
+The app auto-captures location and timestamps throughout the day in the background — no action required from the user (J1 — auto-capture). This runs passively alongside everything else and requires no interruption to the trip. The user can add a one-tap photo or note at any point, but the minimum viable capture happens automatically.
+
+**Key insight from P1:** "I always think I'll organize my photos when I get home. I never do." J1 must work without any decision from the user. The moment it requires thought, it stops being used.
+
+---
+
+### Phase 6 — Post-Trip: Journal & Share *(Solutions: J2–J5)*
+
+**Entry point:** User has returned from the trip.
+
+**Happy path:**
+Auto-captured data is compiled into a visually polished journal layout — the user does not design it (J2 — auto-generated layout). The journal is private by default; no audience, no performance pressure (J3 — private-first). The user decides whether to share. If not, the journal becomes a personal archive — searchable, organized, and tied to real place names rather than a camera roll of unnamed files (J5 — contextual memory layer). If they choose to share, they select specific contacts rather than posting publicly (J4 — selective sharing).
+
+**Key insight from P1:** "The main value is preserving memories and making them easier to revisit rather than social sharing." J3 and J5 together create the private memory tool that P1 described wanting. J4 is the opt-in escape valve, not the default.
+
+---
+
+### Phase 7 — Between Trips *(Solution: D1 re-entry)*
+
+**Entry point:** Trip is over; user is back to daily life.
+
+**Happy path:**
+The past trip journal surfaces naturally as a reference point. When the user is ready to plan again, they re-enter the Discovery feed with accumulated context — saved places from past trips, updated travel style, and a record of what worked and what didn't. The loop closes back to Phase 1, with the user now better informed than on their first visit.
+
+---
+
+## 5. Solution-to-Phase Index
+
+Quick reference for tracing any solution back to its flow position.
+
+| Solution | ID | Phase |
+|----------|----|-------|
+| No-account browsing | A4 | Onboarding |
+| Lightweight onboarding | A5 | Onboarding |
+| Free-first model | A1 | Onboarding |
+| Value-first onboarding | A2 | Onboarding |
+| Granular location controls | A3 | Onboarding |
+| Peer-sourced tip feed | D1 | Pre-Trip: Discover · Between Trips |
+| Traveler-style matching | D2 | Pre-Trip: Discover |
+| Crowd / popularity signal | D3 | Pre-Trip: Discover |
+| Video tip snippets | D4 | Pre-Trip: Discover |
+| Safety context | D5 | Pre-Trip: Discover |
+| One-tap save | P3 | Pre-Trip: Plan |
+| AI itinerary import | P6 | Pre-Trip: Plan |
+| Living shortlist | P1 | Pre-Trip: Plan · In-Destination: Navigate |
+| Collaborative planning | P5 | Pre-Trip: Plan |
+| Map view | P2 | Pre-Trip: Plan |
+| Offline access | P4 | In-Destination: Navigate |
+| Interest & style matching | C2 | In-Destination: Connect |
+| Verified identity | C1 | In-Destination: Connect |
+| Reciprocal exchange | C3 | In-Destination: Connect |
+| In-app messaging | C4 | In-Destination: Connect |
+| Report / block | C5 | In-Destination: Connect |
+| Auto-capture | J1 | In-Destination: Capture |
+| Auto-generated layout | J2 | Post-Trip: Journal |
+| Private-first journal | J3 | Post-Trip: Journal |
+| Selective sharing | J4 | Post-Trip: Share |
+| Contextual memory layer | J5 | Post-Trip: Memory |
+
+---
+
+## 6. Design Tensions Surfaced by the Flow
+
+Mapping all solutions into a single flow reveals three structural tensions that will need resolution in the Feature Strategy.
+
+**1. Auto-capture vs. location privacy.** J1 requires background location access; A3 promises the user full control over what is captured. These two solutions are in direct tension. The design resolution must make opt-out feel safe and accessible without gutting J1's core value. A prominent, always-visible toggle is the minimum required.
+
+**2. Onboarding length vs. personalization depth.** A5 caps onboarding at three questions, but D2 (travel style filtering) and C2 (interest matching) both depend on profile data to work well. The richer the profile, the better the product performs — but longer onboarding increases drop-off. A progressive disclosure model (capture minimum at first, prompt for more at the moment it adds value) would resolve this without compromising A5's intent.
+
+**3. Passive capture vs. active memory.** J1 auto-captures everything; J5 surfaces memories tied to real places and context. But P1 interview data shows users also want control over the output — the ability to remove unwanted captures. An edit-before-publish model (J1 captures everything → user reviews before finalizing → J2 generates the polished layout) could balance capture completeness with user agency.
+
+---
+
+## 7. Next Steps
+
+→ `09_Feature_Strategy.md` — Apply MoSCoW prioritization to the solution pool using this flow as the sequencing reference. Identify which solutions are Must Have for v1 and which can be deferred.
+
+→ Wireframes — Use this flow as the screen-by-screen brief. Each node in the diagram corresponds to at least one screen state.
+
+---
+
+## References
+
+- Dippner, D. (2022). *User Experience Design – Principles & Methods.* SRH Fernhochschule.
+- Patton, J. (2014). *User Story Mapping.* O'Reilly Media. (as cited in Dippner, 2022, p. 171)
+- `07_Solution_Pool.md` — source for all solution IDs and descriptions
+- `06_User_Personas.md` — persona context behind each phase's design decisions
+- `05_Research_Synthesis.md` — P1 interview insights cited in phase breakdowns
+</script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --muted: #64748b;
+  --accent: #6366f1;
+  --accent-light: #eef2ff;
+  --sidebar-w: 400px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ───────────────────────────────── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  height: 52px; padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; z-index: 100;
+}
+.h-left { display: flex; align-items: center; gap: 10px; }
+.h-logo { font-size: 18px; }
+.h-title { font-weight: 700; font-size: 15px; }
+.h-tag {
+  font-size: 11px; background: var(--accent-light); color: var(--accent);
+  padding: 2px 8px; border-radius: 10px; font-weight: 600;
+}
+.h-right { display: flex; align-items: center; gap: 10px; }
+.zoom-controls {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--bg); border-radius: 6px; padding: 2px;
+}
+.zoom-btn {
+  background: none; border: none; cursor: pointer; width: 26px; height: 26px;
+  border-radius: 4px; font-size: 13px; color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+}
+.zoom-btn:hover { background: var(--surface); color: var(--text); }
+.zoom-label { font-size: 11px; color: var(--muted); min-width: 36px; text-align: center; }
+.sol-count {
+  font-size: 12px; color: var(--muted);
+  border-left: 1px solid var(--border); padding-left: 10px;
+}
+
+/* ── Content ──────────────────────────────── */
+#content { flex: 1; display: flex; overflow: hidden; }
+
+/* Diagram area */
+#diagramWrap {
+  flex: 1; overflow: auto; padding: 28px;
+  display: flex; justify-content: flex-start; align-items: flex-start;
+  background: #f8fafc;
+}
+#diagramInner {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 24px;
+}
+#diagramInner { transform-origin: top left; transition: transform .2s; display: inline-block; }
+#diagram { min-width: 600px; }
+#diagram svg { max-width: none !important; }
+
+/* Node interactivity */
+#diagram .node.clickable { cursor: pointer; }
+#diagram .node.clickable:hover rect,
+#diagram .node.clickable:hover polygon,
+#diagram .node.clickable:hover circle,
+#diagram .node.clickable:hover path {
+  filter: brightness(0.93);
+}
+#diagram .node.active rect,
+#diagram .node.active polygon,
+#diagram .node.active circle,
+#diagram .node.active path {
+  stroke: var(--accent) !important;
+  stroke-width: 2.5px !important;
+}
+
+/* Click hint */
+.click-hint {
+  position: fixed; bottom: 76px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15,23,42,.75); color: white;
+  padding: 6px 16px; border-radius: 20px; font-size: 12px;
+  pointer-events: none; transition: opacity .4s;
+}
+.click-hint.hidden { opacity: 0; }
+
+/* Loading / error */
+.state-box {
+  display: flex; align-items: center; gap: 12px; padding: 32px;
+  color: var(--muted); font-size: 14px;
+}
+.spinner {
+  width: 18px; height: 18px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.err-box {
+  background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px;
+  padding: 20px; color: #991b1b; font-size: 13px; line-height: 1.6; margin: 28px;
+}
+
+/* ── Sidebar ──────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w); background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden; flex-shrink: 0;
+  transition: width .25s ease, border .25s ease;
+}
+#sidebar.closed { width: 0; border-left: none; }
+.sb-header {
+  padding: 16px 20px 0;
+  display: flex; justify-content: flex-end; flex-shrink: 0;
+}
+.sb-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 15px; color: var(--muted); width: 28px; height: 28px;
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+}
+.sb-close:hover { background: var(--bg); color: var(--text); }
+#sbContent { padding: 8px 20px 20px; overflow-y: auto; flex: 1; }
+
+.phase-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px; font-size: 12px;
+  font-weight: 700; margin-bottom: 14px; color: white;
+}
+.node-label {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
+  font-size: 13px; line-height: 1.4;
+}
+.node-label .sol-id { font-weight: 800; font-size: 14px; }
+
+.sb-section { margin-bottom: 18px; }
+.sb-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .7px; color: var(--muted); margin-bottom: 6px;
+}
+.sol-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.sol-pill {
+  display: inline-block; background: var(--accent-light);
+  color: var(--accent); padding: 3px 9px; border-radius: 12px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.sol-pill:hover { background: var(--accent); color: white; }
+.sol-pill.active-pill { background: var(--accent); color: white; }
+
+.sb-section p { font-size: 13px; line-height: 1.65; color: var(--muted); margin-bottom: 8px; }
+.sb-section strong { color: var(--text); }
+.sb-section .entry-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .6px; color: var(--muted); display: block; margin: 12px 0 4px;
+}
+.insight-box {
+  background: #fefce8; border-left: 3px solid #eab308;
+  padding: 10px 12px; border-radius: 0 8px 8px 0;
+  font-size: 12px; line-height: 1.6; color: #713f12; margin-top: 10px;
+}
+
+/* ── Solution table ───────────────────────── */
+#solTable {
+  background: var(--surface); border-top: 1px solid var(--border);
+  flex-shrink: 0; max-height: 220px; display: flex; flex-direction: column;
+}
+.tbl-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 20px; cursor: pointer; user-select: none;
+  font-size: 12px; font-weight: 600; color: var(--muted); flex-shrink: 0;
+}
+.tbl-header:hover { background: var(--bg); }
+#tblWrap { overflow: auto; flex: 1; display: none; }
+#tblWrap.open { display: block; }
+#tblWrap table { width: 100%; border-collapse: collapse; font-size: 12px; }
+#tblWrap th {
+  background: var(--bg); padding: 7px 16px; text-align: left;
+  font-weight: 600; color: var(--muted); position: sticky; top: 0; z-index: 1;
+  border-bottom: 1px solid var(--border);
+}
+#tblWrap td { padding: 6px 16px; border-bottom: 1px solid var(--border); }
+#tblWrap tr:last-child td { border-bottom: none; }
+#tblWrap tr.hl td { background: var(--accent-light); }
+#tblWrap .tid { font-weight: 700; color: var(--accent); white-space: nowrap; }
+#tblWrap .tphase { color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-left">
+    <span class="h-logo">✈️</span>
+    <span class="h-title">Travel Buddy · E2E User Flow</span>
+    <span class="h-tag">Draft v1</span>
+  </div>
+  <div class="h-right">
+    <span class="sol-count" id="solCount"></span>
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+      <span class="zoom-label" id="zoomLabel">100%</span>
+      <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+      <button class="zoom-btn" id="zoomReset" title="Reset zoom" style="font-size:11px">⊡</button>
+    </div>
+  </div>
+</header>
+
+<div id="content">
+  <div id="diagramWrap">
+    <div id="diagramInner">
+      <div id="diagram">
+        <div class="state-box"><div class="spinner"></div>Rendering diagram…</div>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar" class="closed">
+    <div class="sb-header">
+      <button class="sb-close" id="sbClose">✕</button>
+    </div>
+    <div id="sbContent"></div>
+  </div>
+</div>
+
+<div class="click-hint" id="clickHint">Click any node to explore phase details</div>
+
+<div id="solTable">
+  <div class="tbl-header" id="tblToggle">
+    <span id="tblTitle">📋 Solution Index</span>
+    <span id="tblArrow">▲ Show</span>
+  </div>
+  <div id="tblWrap"></div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  themeVariables: {
+    primaryColor: '#4f46e5',
+    primaryTextColor: '#ffffff',
+    primaryBorderColor: '#4338ca',
+    lineColor: '#9ca3af',
+    secondaryColor: '#818cf8',
+    tertiaryColor: '#ede9fe',
+    fontSize: '13px',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    edgeLabelBackground: '#ffffff',
+    clusterBkg: '#ffffff',
+    clusterBorder: '#e2e8f0',
+    nodeBorder: '#4338ca',
+    mainBkg: '#4f46e5',
+  },
+  flowchart: { htmlLabels: true, curve: 'basis', padding: 20 }
+});
+
+const phaseColors = {
+  onboard: '#6366f1', discover: '#10b981', plan: '#3b82f6',
+  navigate: '#f59e0b', connect: '#ef4444', capture: '#8b5cf6',
+  post: '#ec4899', journal: '#ec4899', share: '#ec4899', memory: '#ec4899',
+  between: '#14b8a6', loop: '#14b8a6',
+};
+
+// ── State ─────────────────────────────────────────────────────
+let parsed = { mermaidCode: '', phases: {}, solutions: [] };
+let zoom = 1;
+let tblOpen = false;
+
+// ── DOM refs ──────────────────────────────────────────────────
+const $diagram   = document.getElementById('diagram');
+const $inner     = document.getElementById('diagramInner');
+const $sidebar   = document.getElementById('sidebar');
+const $sbContent = document.getElementById('sbContent');
+const $clickHint = document.getElementById('clickHint');
+const $tblWrap   = document.getElementById('tblWrap');
+const $tblTitle  = document.getElementById('tblTitle');
+const $tblArrow  = document.getElementById('tblArrow');
+const $zoomLabel = document.getElementById('zoomLabel');
+const $solCount  = document.getElementById('solCount');
+
+// ── Boot ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const mdText = document.getElementById('md-source').textContent;
+  processMarkdown(mdText);
+});
+
+document.getElementById('sbClose').addEventListener('click', closeSidebar);
+document.getElementById('tblToggle').addEventListener('click', toggleTable);
+document.getElementById('zoomIn').addEventListener('click', () => setZoom(zoom + 0.15));
+document.getElementById('zoomOut').addEventListener('click', () => setZoom(zoom - 0.15));
+document.getElementById('zoomReset').addEventListener('click', () => setZoom(1));
+
+// ── Markdown parsing ──────────────────────────────────────────
+async function processMarkdown(text) {
+  parsed.mermaidCode = extractMermaid(text);
+  parsed.phases      = extractPhases(text);
+  parsed.solutions   = extractSolutions(text);
+  await renderDiagram(parsed.mermaidCode);
+  renderTable(parsed.solutions);
+  if (parsed.solutions.length) {
+    $solCount.textContent = parsed.solutions.length + ' solutions';
+  }
+}
+
+function extractMermaid(text) {
+  const m = text.match(/```mermaid\r?\n([\s\S]*?)```/);
+  return m ? m[1].trim() : '';
+}
+
+function extractPhases(text) {
+  const phases = {};
+  const re = /###\s+Phase\s+\d+\s+[—–-]\s+(.+?)\n([\s\S]*?)(?=###\s+Phase|\n##\s|\n---\s*\n##|$)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const title = m[1].replace(/\s*\*\(.*?\)\*/g, '').replace(/\s*\*\(.*$/, '').trim();
+    phases[title] = m[2].trim();
+  }
+  return phases;
+}
+
+function extractSolutions(text) {
+  const section = text.match(/##\s+5[^#\n]*\n([\s\S]*?)(?=\n##\s|$)/);
+  if (!section) return [];
+  const lines = section[1].split('\n').filter(l => l.startsWith('|'));
+  return lines
+    .filter(l => !l.match(/^\|\s*[-:]+\s*\|/))
+    .slice(1)
+    .map(l => {
+      const cells = l.split('|').map(c => c.trim()).filter(Boolean);
+      return cells.length >= 3 ? { solution: cells[0], id: cells[1], phase: cells[2] } : null;
+    })
+    .filter(Boolean);
+}
+
+// ── Mermaid rendering ─────────────────────────────────────────
+async function renderDiagram(code) {
+  if (!code) {
+    $diagram.innerHTML = '<p style="color:#94a3b8;padding:24px;font-size:14px">No Mermaid block found.</p>';
+    return;
+  }
+  try {
+    const uid = 'g' + Date.now();
+    const { svg } = await mermaid.render(uid, code);
+    $diagram.innerHTML = svg;
+    setTimeout(() => { injectDiagramStyle(); attachHandlers(); autoFit(); }, 150);
+  } catch (e) {
+    $diagram.innerHTML = `<div class="err-box"><strong>Diagram error:</strong><br>${e.message}</div>`;
+  }
+}
+
+function attachHandlers() {
+  const svg = $diagram.querySelector('svg');
+  if (!svg) return;
+  $clickHint.classList.remove('hidden');
+
+  svg.querySelectorAll('.node').forEach(node => {
+    const labelEl = node.querySelector('.nodeLabel') || node.querySelector('.label') || node.querySelector('text');
+    if (!labelEl) return;
+    const raw = labelEl.textContent.trim();
+    const m = raw.match(/·\s*([A-Z]\d+(?:[–\-][A-Z]?\d+)?)/);
+    if (!m) return;
+
+    node.classList.add('clickable');
+    node.addEventListener('click', () => {
+      clearActive();
+      node.classList.add('active');
+      openSidebar(m[1], raw);
+      $clickHint.classList.add('hidden');
+    });
+  });
+}
+
+function clearActive() {
+  $diagram.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
+}
+
+// ── Sidebar ───────────────────────────────────────────────────
+function openSidebar(solId, nodeLabel) {
+  const entry = parsed.solutions.find(s => s.id === solId);
+  if (!entry) return;
+
+  const phaseName = entry.phase.split(' · ')[0];
+  const color     = phaseColor(phaseName);
+  const emoji     = phaseEmoji(phaseName);
+  const phaseGroup = phaseName.split(':')[0];
+  const phaseSols  = parsed.solutions.filter(s => s.phase.startsWith(phaseGroup));
+  const phaseKey   = matchPhaseKey(phaseName);
+  const phaseBody  = phaseKey ? parsed.phases[phaseKey] : '';
+
+  highlightRow(solId);
+
+  const pills = phaseSols.map(s =>
+    `<span class="sol-pill ${s.id === solId ? 'active-pill' : ''}" data-id="${s.id}">${s.id}</span>`
+  ).join('');
+
+  const cleanLabel = nodeLabel.replace(/·.*/, '').trim();
+
+  $sbContent.innerHTML = `
+    <span class="phase-badge" style="background:${color}">${emoji} ${phaseName}</span>
+    <div class="node-label">
+      ${cleanLabel}<br>
+      <span class="sol-id" style="color:${color}">· ${solId}</span>
+      ${entry.solution !== cleanLabel ? `<span style="color:var(--muted);font-size:12px"> — ${entry.solution}</span>` : ''}
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Solutions in this phase</div>
+      <div class="sol-pills">${pills}</div>
+    </div>
+    ${phaseKey ? `
+    <div class="sb-section">
+      <div class="sb-label">Phase — ${phaseKey}</div>
+      ${renderPhaseBody(phaseBody, solId, color)}
+    </div>` : ''}
+  `;
+
+  $sbContent.querySelectorAll('.sol-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const pid = pill.dataset.id;
+      const svg = $diagram.querySelector('svg');
+      if (!svg) return;
+      svg.querySelectorAll('.node').forEach(n => {
+        const txt = (n.querySelector('.nodeLabel') || n.querySelector('text'))?.textContent || '';
+        if (txt.includes('· ' + pid)) {
+          clearActive(); n.classList.add('active');
+          openSidebar(pid, txt.trim());
+        }
+      });
+    });
+  });
+
+  $sidebar.classList.remove('closed');
+}
+
+function renderPhaseBody(body, highlightId, color) {
+  if (!body) return '';
+  const lines = body.split('\n');
+  let html = ''; let inInsight = false;
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) { if (inInsight) html += '<br>'; continue; }
+
+    if (line.startsWith('**Key insight')) {
+      if (inInsight) html += '</div>';
+      html += `<div class="insight-box">💡 <strong>Key insight from P1:</strong><br>`;
+      inInsight = true;
+      const rest = line.replace(/\*\*Key insight[^*]*\*\*:?\s*/, '');
+      if (rest) html += rest;
+      continue;
+    }
+
+    const leadMatch = line.match(/^\*\*(.{3,30}?)\*\*:?\s*(.*)/);
+    if (leadMatch) {
+      if (inInsight) { html += '</div>'; inInsight = false; }
+      html += `<span class="entry-tag">${leadMatch[1]}</span>`;
+      if (leadMatch[2]) html += `<p>${fmt(leadMatch[2], highlightId, color)}</p>`;
+      continue;
+    }
+
+    const formatted = fmt(line, highlightId, color);
+    if (inInsight) html += formatted + ' ';
+    else html += `<p>${formatted}</p>`;
+  }
+  if (inInsight) html += '</div>';
+  return html;
+}
+
+function fmt(text, highlightId, color) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(new RegExp(`\\b(${escRe(highlightId)})\\b`, 'g'),
+      `<span style="background:${color}22;color:${color};border-radius:3px;padding:0 4px;font-weight:700">$1</span>`);
+}
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function closeSidebar() {
+  $sidebar.classList.add('closed');
+  clearActive();
+  clearHighlight();
+}
+
+function matchPhaseKey(phaseName) {
+  const norm = phaseName.toLowerCase();
+  return Object.keys(parsed.phases).find(k => {
+    const kn = k.toLowerCase();
+    return kn.includes(norm.split(':')[0].trim()) || norm.includes(kn.split(':')[0].trim().split(' ')[0]);
+  });
+}
+
+function phaseColor(name) {
+  const n = name.toLowerCase();
+  for (const [k, v] of Object.entries(phaseColors)) if (n.includes(k)) return v;
+  return '#6366f1';
+}
+
+function phaseEmoji(name) {
+  const n = name.toLowerCase();
+  if (n.includes('onboard')) return '🚀';
+  if (n.includes('discover')) return '🔍';
+  if (n.includes('plan')) return '📋';
+  if (n.includes('navigate')) return '📍';
+  if (n.includes('connect')) return '🤝';
+  if (n.includes('capture')) return '📷';
+  if (n.includes('post') || n.includes('journal')) return '📸';
+  if (n.includes('between') || n.includes('loop')) return '🔁';
+  return '✨';
+}
+
+// ── Solution table ────────────────────────────────────────────
+function renderTable(solutions) {
+  if (!solutions.length) return;
+  $tblTitle.textContent = `📋 Solution Index (${solutions.length})`;
+
+  const rows = solutions.map(s => `
+    <tr id="r-${s.id}">
+      <td>${s.solution}</td>
+      <td class="tid">${s.id}</td>
+      <td class="tphase">${s.phase}</td>
+    </tr>`).join('');
+
+  $tblWrap.innerHTML = `<table>
+    <thead><tr><th>Solution</th><th style="width:60px">ID</th><th>Phase</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+
+  $tblWrap.querySelectorAll('tr[id]').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', () => {
+      const sid = row.id.replace('r-', '');
+      const svg = $diagram.querySelector('svg');
+      if (!svg) return;
+      let found = false;
+      svg.querySelectorAll('.node').forEach(n => {
+        const txt = (n.querySelector('.nodeLabel') || n.querySelector('text'))?.textContent || '';
+        if (txt.includes('· ' + sid) && !found) {
+          found = true;
+          clearActive(); n.classList.add('active');
+          openSidebar(sid, txt.trim());
+        }
+      });
+    });
+  });
+}
+
+function highlightRow(id) {
+  $tblWrap.querySelectorAll('tr.hl').forEach(r => r.classList.remove('hl'));
+  const row = document.getElementById('r-' + id);
+  if (row) { row.classList.add('hl'); row.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+}
+function clearHighlight() {
+  $tblWrap.querySelectorAll('tr.hl').forEach(r => r.classList.remove('hl'));
+}
+
+function toggleTable() {
+  tblOpen = !tblOpen;
+  $tblWrap.classList.toggle('open', tblOpen);
+  $tblArrow.textContent = tblOpen ? '▼ Hide' : '▲ Show';
+}
+
+// ── Style injection ───────────────────────────────────────────
+function injectDiagramStyle() {
+  const svg = $diagram.querySelector('svg');
+  if (!svg) return;
+
+  // White background on SVG itself
+  svg.style.background = '#ffffff';
+
+  // Subgraph containers — white card with soft border + shadow
+  svg.querySelectorAll('.cluster rect').forEach(rect => {
+    rect.setAttribute('fill', '#ffffff');
+    rect.setAttribute('stroke', '#e2e8f0');
+    rect.setAttribute('stroke-width', '1.5');
+    rect.setAttribute('rx', '14');
+    rect.setAttribute('ry', '14');
+    rect.style.filter = 'drop-shadow(0 2px 6px rgba(0,0,0,0.06))';
+  });
+
+  // Subgraph labels — muted, uppercase-ish
+  svg.querySelectorAll('.cluster-label .nodeLabel, .cluster-label text').forEach(el => {
+    el.style.fill = '#64748b';
+    el.style.fontWeight = '600';
+    el.style.fontSize = '12px';
+  });
+
+  // Edge lines — thin gray
+  svg.querySelectorAll('.edgePath path').forEach(p => {
+    p.setAttribute('stroke', '#94a3b8');
+    p.setAttribute('stroke-width', '1.5');
+  });
+
+  // Arrowhead markers — match edge color
+  svg.querySelectorAll('marker path, marker polygon').forEach(el => {
+    el.setAttribute('fill', '#94a3b8');
+    el.setAttribute('stroke', '#94a3b8');
+  });
+
+  // Edge label text
+  svg.querySelectorAll('.edgeLabel text').forEach(el => {
+    el.style.fill = '#94a3b8';
+    el.style.fontSize = '11px';
+  });
+
+  // Edge label background — transparent
+  svg.querySelectorAll('.edgeLabel rect').forEach(el => {
+    el.setAttribute('fill', 'transparent');
+    el.setAttribute('stroke', 'none');
+  });
+
+  // All node rects — add border-radius
+  svg.querySelectorAll('.node rect').forEach(rect => {
+    const rx = rect.getAttribute('rx');
+    if (!rx || rx === '0') rect.setAttribute('rx', '8');
+    rect.setAttribute('ry', rect.getAttribute('rx'));
+  });
+}
+
+// ── Zoom ──────────────────────────────────────────────────────
+function autoFit() {
+  const svg = $diagram.querySelector('svg');
+  const wrap = document.getElementById('diagramWrap');
+  if (!svg || !wrap) return;
+  const svgH = svg.getBoundingClientRect().height;
+  const availH = wrap.clientHeight - 80;
+  if (!svgH) return;
+  // Fit to height only — diagram scrolls horizontally
+  const fitScale = Math.min(availH / svgH, 1.5);
+  setZoom(Math.max(fitScale, 0.4));
+}
+
+function setZoom(z) {
+  zoom = Math.min(2, Math.max(0.3, Math.round(z * 20) / 20));
+  $inner.style.transform = `scale(${zoom})`;
+  $zoomLabel.textContent = Math.round(zoom * 100) + '%';
+}
+</script>
+</body>
+</html>
